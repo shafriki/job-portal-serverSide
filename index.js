@@ -47,12 +47,29 @@ async function run() {
     })
 
     // job applications apis
-    app.get('/job-applications', async(req, res) => {
+    app.get('/job-application', async(req, res) => {
       const email = req.query.email;
-      const query = {aapplicant_email: email}
+      const query = { applicant_email: email };
       const result = await jobApplicationCollection.find(query).toArray();
-      res.send(result);
+
+      // fokira way vai to aggregate data
+      for(const application of result) {
+        console.log(application.job_id)
+        const query1 = {_id: new ObjectId(application.job_id)}
+        const result1 = await jobCollection.findOne(query1);
+        
+        if (result1) {
+          application.title = result1.title;
+          application.company = result1.company;
+        }
+        
+        
+      }
+
+      res.send(result); 
     })
+
+
     app.post('/job-applications', async(req,res) => {
       const application = req.body;
       const result = await jobApplicationCollection.insertOne(application);

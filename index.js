@@ -32,9 +32,25 @@ async function run() {
     console.log("Pinged your deployment. You successfully connected to MongoDB!");
 
 
+    
+
     // job related apis
     const jobCollection = client.db('jobPortal').collection('jobs');
     const jobApplicationCollection = client.db('jobPortal').collection('job-application');
+
+    // auth jwt related apis
+    app.post('/jwt', (req, res) => {
+      const user = req.body;
+      const token = jwt.sign(user, process.env.ACCESS_TOKEN_SECRET, {
+        expiresIn: '5h'
+      });
+
+      res.cookie('token', token, {
+        httpOnly: true,
+        secure: false
+      })
+    })
+
 
     app.get('/jobs', async(req, res) => {
         const cursor = jobCollection.find();
